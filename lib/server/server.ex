@@ -35,12 +35,12 @@ defmodule Server do
     end
   end
 
-  def loop({ip, port}) do
+  defp loop({ip, port}) do
     receive do
-      {:tcp, socket, packet} ->
-        Logger.info("INCOMING P#{port}: #{inspect(packet)}")
+      {:tcp, _socket, packet} ->
+        # Logger.info("INCOMING P#{port}: #{inspect(packet)}")
         # :gen_tcp.send(socket, "Hello World \n")
-        Broker.LoadBalancer.dispatch_msg(packet)
+        Topic.Manager.dispatch(packet)
         loop({ip, port})
 
       {:tcp_closed, socket} ->
