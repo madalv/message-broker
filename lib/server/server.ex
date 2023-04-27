@@ -2,8 +2,9 @@ defmodule Server do
   require Logger
 
   def init({ip, port}) do
+    Process.flag(:trap_exit, true)
     pid =
-      spawn(fn ->
+      spawn_link(fn ->
         {:ok, listen_socket} =
           :gen_tcp.listen(port, [:binary, {:packet, :line}, {:active, true}, {:ip, ip}])
 
@@ -19,7 +20,7 @@ defmodule Server do
     case :gen_tcp.accept(listen_socket) do
       {:ok, client} ->
         pid =
-          spawn(fn ->
+          spawn_link(fn ->
             Logger.info("Connection accepted on P#{port}: #{inspect(client)}")
 
             loop({ip, port})
@@ -38,7 +39,8 @@ defmodule Server do
     receive do
       {:tcp, socket, packet} ->
         Logger.info("INCOMING P#{port}: #{inspect(packet)}")
-        :gen_tcp.send(socket, "Hello World \n")
+        # :gen_tcp.send(socket, "Hello World \n")
+        Broker.LoadBalancer.dispatch_msg(packet)
         loop({ip, port})
 
       {:tcp_closed, socket} ->

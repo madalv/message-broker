@@ -1,4 +1,4 @@
-defmodule ServerSupervisor do
+defmodule Server.Supervisor do
   use Supervisor
   require Logger
 
