@@ -3,6 +3,7 @@ defmodule Server do
 
   def init({ip, port}) do
     Process.flag(:trap_exit, true)
+
     pid =
       spawn_link(fn ->
         {:ok, listen_socket} =
@@ -37,10 +38,8 @@ defmodule Server do
 
   defp loop({ip, port}) do
     receive do
-      {:tcp, _socket, packet} ->
-        # Logger.info("INCOMING P#{port}: #{inspect(packet)}")
-        # :gen_tcp.send(socket, "Hello World \n")
-        Topic.Manager.dispatch(packet)
+      {:tcp, socket, packet} ->
+        Topic.Manager.dispatch(packet, socket)
         loop({ip, port})
 
       {:tcp_closed, socket} ->

@@ -16,10 +16,26 @@ defmodule Topic do
   end
 
   def handle_cast({:handle, msg}, state) do
+    # todo: error handling
+    new_clients =
+      case msg do
+        {"sub", id} ->
+          [id | state[:clients]]
 
-    Logger.debug(inspect(msg))
+        {"unsub", id} ->
+          state[:clients] -- [id]
 
-    {:noreply, state}
+        {"msg", data} ->
+          for client <- state[:clients],
+              do: Client.Manager.dispatch(client, data)
+
+        {"unsendable", _data} ->
+          nil
+          state[:clients]
+      end
+
+    Logger.debug("TOPIC #{state[:name]} #{inspect(new_clients)}")
+
+    {:noreply, %{state | clients: new_clients}}
   end
-
 end

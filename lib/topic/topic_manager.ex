@@ -11,12 +11,12 @@ defmodule Topic.Manager do
     {:ok, list}
   end
 
-  def dispatch(msg) do
-    GenServer.cast(__MODULE__, {:dispatch, msg})
+  def dispatch(msg, from) do
+    GenServer.cast(__MODULE__, {:dispatch, msg, from})
   end
 
-  def handle_cast({:dispatch, msg_json}, list) do
-    msg = decode(msg_json)
+  def handle_cast({:dispatch, msg_json, from}, list) do
+    msg = decode(msg_json, from)
 
     Logger.debug(inspect(list))
 
@@ -38,10 +38,14 @@ defmodule Topic.Manager do
     {:noreply, new_topic_list}
   end
 
-  defp decode(msg) do
+  defp decode(msg, from) do
     decoded = Jason.decode(msg)
 
     case decoded do
+      {:ok, %{"event" => "sub", "data" => id, "topics" => topics}} ->
+        new_id = Client.Manager.handle_sub(id, from)
+        %{"event" => "sub", "data" => new_id, "topics" => topics}
+
       {:ok, m = %{"event" => _, "data" => _data, "topics" => _topics}} ->
         m
 
