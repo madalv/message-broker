@@ -16,11 +16,14 @@ defmodule Topic do
   end
 
   def handle_cast({:handle, msg}, state) do
-    # todo: error handling
     new_clients =
       case msg do
         {"sub", id} ->
-          [id | state[:clients]]
+          if id in state[:clients] do
+            state[:clients]
+          else
+            [id | state[:clients]]
+          end
 
         {"unsub", id} ->
           state[:clients] -- [id]
@@ -29,11 +32,14 @@ defmodule Topic do
           for client <- state[:clients],
               do: Client.Manager.dispatch(client, data)
 
+          state[:clients]
+
         {"unsendable", _data} ->
           nil
           state[:clients]
       end
 
+    Logger.debug("TOPIC old #{state[:name]} #{inspect(state[:clients])}")
     Logger.debug("TOPIC #{state[:name]} #{inspect(new_clients)}")
 
     {:noreply, %{state | clients: new_clients}}

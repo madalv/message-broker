@@ -7,7 +7,6 @@ defmodule Server.Supervisor do
   end
 
   def init(_) do
-
     Process.flag(:trap_exit, true)
 
     children = [

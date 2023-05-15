@@ -46,6 +46,10 @@ defmodule Topic.Manager do
         new_id = Client.Manager.handle_sub(id, from)
         %{"event" => "sub", "data" => new_id, "topics" => topics}
 
+      {:ok, %{"event" => "ack", "data" => [id, msg], "topics" => _topics}} ->
+        Client.Manager.dispatch(id, {"ack", msg})
+        %{"event" => "ack", "data" => {id, msg}, "topics" => []}
+
       {:ok, m = %{"event" => _, "data" => _data, "topics" => _topics}} ->
         m
 

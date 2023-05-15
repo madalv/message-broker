@@ -17,7 +17,6 @@ defmodule Topic.Supervisor do
   end
 
   def add_topic(name) when is_atom(name) do
-
     Supervisor.start_child(__MODULE__, %{
       id: name,
       start: {Topic, :start_link, [name]}

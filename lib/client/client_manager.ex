@@ -26,7 +26,6 @@ defmodule Client.Manager do
     GenServer.call(__MODULE__, {:conn, id, from})
   end
 
-  # todo: check if id exists before if it's not 0, retrieve discon msgs
   def handle_call({:conn, id, from}, _from, state) do
     if id == 0 do
       new_id = state[:cnt] |> to_string() |> String.to_atom()
@@ -34,7 +33,13 @@ defmodule Client.Manager do
       dispatch(new_id, "Your ID is #{new_id}")
       {:reply, new_id, %{state | cnt: state[:cnt] + 1}}
     else
-      {:reply, id |> to_string() |> String.to_atom(), state}
+      new_id = id |> to_string() |> String.to_atom()
+
+      if !Client.Supervisor.client_exists?(new_id) do
+        Client.Supervisor.add_client(new_id, from)
+      end
+
+      {:reply, new_id, %{state | cnt: id + 1}}
     end
   end
 end

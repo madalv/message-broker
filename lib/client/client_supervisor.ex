@@ -22,9 +22,15 @@ defmodule Client.Supervisor do
       start: {Client, :start_link, [{name, socket}]}
     })
 
-    inspect(Supervisor.which_children(__MODULE__))
     Logger.debug("Added new client #{name} #{inspect(Supervisor.which_children(__MODULE__))}")
-    get_process(name)
+    # get_process(name)
+  end
+
+  def client_exists?(name) when is_atom(name) do
+    Enum.any?(
+      Supervisor.which_children(__MODULE__),
+      fn {id, _, _, _} -> id == name end
+    )
   end
 
   def get_process(name) when is_atom(name) do
