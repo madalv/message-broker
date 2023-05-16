@@ -54,7 +54,8 @@ defmodule Topic.Manager do
         m
 
       unsendable ->
-        %{"event" => "unsendable_msg", "data" => unsendable, "topics" => ["dead_letter_channel"]}
+        Topic.DeadLtrChannel.handle_unsendable(unsendable)
+        %{"event" => "unsendable_msg", "data" => unsendable, "topics" => []}
     end
   end
 end

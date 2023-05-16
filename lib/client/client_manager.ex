@@ -8,17 +8,21 @@ defmodule Client.Manager do
 
   def init(_) do
     Logger.info("Client Manager is up")
+    :dets.open_file(:clients, [{:type, :set}])
     {:ok, %{cnt: 1}}
   end
 
-  def dispatch(id, msg) do
-    client_pid =
-      if is_atom(id) do
+
+  def get_pid(id) do
+    if is_atom(id) do
         id |> Client.Supervisor.get_process()
       else
         id |> to_string() |> String.to_atom() |> Client.Supervisor.get_process()
       end
+  end
 
+  def dispatch(id, msg) do
+    client_pid = get_pid(id)
     Client.handle_msg(client_pid, msg)
   end
 
@@ -37,9 +41,13 @@ defmodule Client.Manager do
 
       if !Client.Supervisor.client_exists?(new_id) do
         Client.Supervisor.add_client(new_id, from)
+      else
+        pid = get_pid(id)
+        Client.change_socket(pid, from)
       end
 
-      {:reply, new_id, %{state | cnt: id + 1}}
+      new_cnt = if id < state[:cnt] do state[:cnt] + 1 else id + 1 end
+      {:reply, new_id, %{state | cnt: new_cnt}}
     end
   end
 end

@@ -26,7 +26,8 @@ defmodule Topic do
           end
 
         {"unsub", id} ->
-          state[:clients] -- [id]
+          string_id = id |> to_string() |> String.to_atom()
+          state[:clients] -- [string_id]
 
         {"msg", data} ->
           for client <- state[:clients],

@@ -11,12 +11,23 @@ defmodule Client do
     :timer.send_after(5000, self(), :send)
 
     string_id = id |> to_string() |> String.to_atom()
-    :dets.open_file(:clients, [{:type, :set}])
 
-    [{_, data}] = :dets.lookup(:clients, string_id)
+    persisted =
+      case :dets.lookup(:clients, string_id) do
+        [{_, data}] -> data
+        [] -> []
+      end
 
-    Logger.debug("Client #{id}'s persisted queue: #{inspect(data)}")
-    {:ok, %{id: id, socket: socket, queue: data, last_ack: true, retry_lim: 10}}
+    Logger.debug("Client #{id}'s persisted queue: #{inspect(persisted)}")
+    {:ok, %{id: id, socket: socket, queue: persisted, last_ack: true, retry_lim: 10}}
+  end
+
+  def change_socket(pid, socket) do
+    GenServer.cast(pid, {:socket, socket})
+  end
+
+  def handle_cast({:socket, socket}, state) do
+    {:noreply, %{state | socket: socket}}
   end
 
   def handle_msg(pid, msg) do
@@ -43,7 +54,7 @@ defmodule Client do
   end
 
   def handle_cast({:handle, msg}, state) do
-    queue = [msg | state[:queue]]
+    queue = state[:queue] ++ [msg]
     string_id = state[:id] |> to_string() |> String.to_atom()
     :dets.insert(:clients, {string_id, queue})
     {:noreply, %{state | queue: queue}}
