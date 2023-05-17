@@ -1,2 +1,2 @@
-config: :prod, ip: {127, 0, 0, 1}, port: 6666
-config: :cons, ip: {127, 0, 0, 1}, port: 6667
+config: :prod, ip: {127, 18, 0, 2}, port: 6666
+config: :cons, ip: {127, 18, 0, 2}, port: 6667

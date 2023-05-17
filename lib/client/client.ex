@@ -27,7 +27,7 @@ defmodule Client do
   end
 
   def handle_cast({:socket, socket}, state) do
-    {:noreply, %{state | socket: socket}}
+    {:noreply, %{state | socket: socket, retry_lim: 10}}
   end
 
   def handle_msg(pid, msg) do

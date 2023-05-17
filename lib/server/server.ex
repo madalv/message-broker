@@ -9,7 +9,7 @@ defmodule Server do
         {:ok, listen_socket} =
           :gen_tcp.listen(port, [:binary, {:packet, :line}, {:active, true}, {:ip, ip}])
 
-        Logger.info("TCP Server #{inspect(self())} accepting connections on port #{port}")
+        Logger.info("TCP Server #{inspect(self())} accepting connections on port #{port} IP#{inspect(ip)}")
 
         accept(listen_socket, {ip, port})
       end)
@@ -22,7 +22,7 @@ defmodule Server do
       {:ok, client} ->
         pid =
           spawn_link(fn ->
-            Logger.info("Connection accepted on P#{port}: #{inspect(client)}")
+            Logger.info("Connection accepted on P#{port} : #{inspect(client)}")
 
             loop({ip, port})
           end)
