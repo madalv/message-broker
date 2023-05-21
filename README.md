@@ -1,6 +1,21 @@
-# Messagebroker
+# Lab 3 PTR (Message Broker)
 
-**TODO: Add description**
+An implementation of a Message Broker in Elixir. Find out way more in `/report/report.md`.
+
+## Starting the Project
+
+To run locally:
+
+```bash
+mix run lib/script.exs
+```
+
+To run the Docker container:
+
+```bash
+docker compose up --build
+```
+
 
 ## Installation
 
