@@ -1,4 +1,3 @@
-# Use the official Elixir 1.13.1 image
 FROM elixir:latest
 
 WORKDIR /app

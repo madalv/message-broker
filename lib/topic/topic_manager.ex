@@ -8,6 +8,7 @@ defmodule Topic.Manager do
 
   def init(list) do
     Logger.info("Topic Manager is up")
+    Topic.DeadLtrChannel.start_link()
     {:ok, list}
   end
 
@@ -18,7 +19,7 @@ defmodule Topic.Manager do
   def handle_cast({:dispatch, msg_json, from}, list) do
     msg = decode(msg_json, from)
 
-    Logger.debug(inspect(list))
+    # Logger.debug(inspect(list))
 
     new_topic_list =
       Enum.reduce(msg["topics"], list, fn string, acc ->
